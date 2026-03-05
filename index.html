@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArcGIS Indoors - Data Center Intelligence Platform</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/dark/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://js.arcgis.com/4.29/"></script>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loader-content">
+      <div class="loader-spinner"></div>
+      <h2>ArcGIS Indoors</h2>
+      <p>Data Center Intelligence Platform</p>
+      <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header id="app-header">
+    <div class="header-left">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00b4d8" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span class="logo-text">ArcGIS Indoors <span class="logo-accent">| Data Center</span></span>
+      </div>
+    </div>
+    <div class="header-center">
+      <nav class="main-nav">
+        <button class="nav-btn active" data-panel="overview">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Overview
+        </button>
+        <button class="nav-btn" data-panel="routing">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+          Routing
+        </button>
+        <button class="nav-btn" data-panel="spaces">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          Space Mgmt
+        </button>
+        <button class="nav-btn" data-panel="assets">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+          Assets
+        </button>
+        <button class="nav-btn" data-panel="safety">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Safety
+        </button>
+        <button class="nav-btn" data-panel="environment">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+          Environment
+        </button>
+      </nav>
+    </div>
+    <div class="header-right">
+      <div class="floor-selector">
+        <label>Floor:</label>
+        <select id="floor-select">
+          <option value="1">Level 1 - Network Core</option>
+          <option value="2" selected>Level 2 - Server Hall</option>
+          <option value="3">Level 3 - Storage & Backup</option>
+          <option value="4">Level 4 - Operations Center</option>
+        </select>
+      </div>
+      <button id="btn-3d-toggle" class="icon-btn" title="Toggle 2D/3D">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div id="app-content">
+    <!-- Map View -->
+    <div id="map-container">
+      <div id="viewDiv"></div>
+      <!-- Map Overlay Widgets -->
+      <div id="map-legend" class="map-widget">
+        <div class="widget-header">Legend</div>
+        <div id="legend-content"></div>
+      </div>
+    </div>
+
+    <!-- Side Panel -->
+    <div id="side-panel">
+      <!-- Overview Panel -->
+      <div class="panel-content active" id="panel-overview">
+        <h2>Data Center Overview</h2>
+        <p class="panel-description">Real-time facility intelligence powered by ArcGIS Indoors</p>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-racks">342</div>
+            <div class="stat-label">Server Racks</div>
+            <div class="stat-trend up">+12 this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-capacity">78%</div>
+            <div class="stat-label">Capacity Used</div>
+            <div class="stat-trend warning">Near threshold</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-uptime">99.99%</div>
+            <div class="stat-label">Uptime</div>
+            <div class="stat-trend up">SLA compliant</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-pue">1.28</div>
+            <div class="stat-label">PUE Rating</div>
+            <div class="stat-trend up">-0.03 vs last quarter</div>
+          </div>
+        </div>
+        <div class="section-header">
+          <h3>Floor Summary</h3>
+        </div>
+        <div class="floor-summary">
+          <div class="floor-item" data-floor="1">
+            <div class="floor-indicator" style="background:#00b4d8"></div>
+            <div class="floor-info">
+              <strong>Level 1 - Network Core</strong>
+              <span>48 racks | 82% utilized | 22.1°C avg</span>
+            </div>
+          </div>
+          <div class="floor-item active" data-floor="2">
+            <div class="floor-indicator" style="background:#06d6a0"></div>
+            <div class="floor-info">
+              <strong>Level 2 - Server Hall</strong>
+              <span>156 racks | 76% utilized | 21.8°C avg</span>
+            </div>
+          </div>
+          <div class="floor-item" data-floor="3">
+            <div class="floor-indicator" style="background:#ffd166"></div>
+            <div class="floor-info">
+              <strong>Level 3 - Storage & Backup</strong>
+              <span>98 racks | 91% utilized | 23.2°C avg</span>
+            </div>
+          </div>
+          <div class="floor-item" data-floor="4">
+            <div class="floor-indicator" style="background:#ef476f"></div>
+            <div class="floor-info">
+              <strong>Level 4 - Operations Center</strong>
+              <span>40 racks | 45% utilized | 21.0°C avg</span>
+            </div>
+          </div>
+        </div>
+        <div class="section-header">
+          <h3>Active Alerts</h3>
+        </div>
+        <div class="alerts-list">
+          <div class="alert-item critical">
+            <div class="alert-icon">!</div>
+            <div class="alert-info">
+              <strong>High Temperature - Zone B3</strong>
+              <span>Rack B3-14 reading 32.4°C - Above threshold</span>
+            </div>
+            <span class="alert-time">2m ago</span>
+          </div>
+          <div class="alert-item warning">
+            <div class="alert-icon">!</div>
+            <div class="alert-info">
+              <strong>Capacity Warning - Zone A2</strong>
+              <span>Power draw at 88% of rated capacity</span>
+            </div>
+            <span class="alert-time">15m ago</span>
+          </div>
+          <div class="alert-item info">
+            <div class="alert-icon">i</div>
+            <div class="alert-info">
+              <strong>Maintenance Scheduled - CRAC Unit 7</strong>
+              <span>Preventive maintenance window: Tomorrow 02:00-04:00</span>
+            </div>
+            <span class="alert-time">1h ago</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Routing Panel -->
+      <div class="panel-content" id="panel-routing">
+        <h2>Indoor Routing & Wayfinding</h2>
+        <p class="panel-description">Navigate efficiently through the data center with turn-by-turn directions</p>
+        <div class="routing-form">
+          <div class="form-group">
+            <label>From</label>
+            <select id="route-from">
+              <option value="entrance">Main Entrance</option>
+              <option value="noc">NOC Room</option>
+              <option value="a1">Zone A1 - Row 1</option>
+              <option value="b2">Zone B2 - Row 5</option>
+              <option value="mdf">Main Distribution Frame</option>
+              <option value="power">Power Room A</option>
+            </select>
+          </div>
+          <button id="swap-route" class="swap-btn" title="Swap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          </button>
+          <div class="form-group">
+            <label>To</label>
+            <select id="route-to">
+              <option value="a1">Zone A1 - Row 1</option>
+              <option value="b2" selected>Zone B2 - Row 5</option>
+              <option value="c3">Zone C3 - Row 12</option>
+              <option value="cooling">Cooling Plant</option>
+              <option value="generator">Generator Room</option>
+              <option value="loading">Loading Dock</option>
+            </select>
+          </div>
+          <div class="route-options">
+            <label class="checkbox-label">
+              <input type="checkbox" id="route-accessible" />
+              Accessible route
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="route-secure" checked />
+              Security-cleared path
+            </label>
+          </div>
+          <button id="calculate-route" class="primary-btn">Calculate Route</button>
+        </div>
+        <div id="route-results" class="route-results hidden">
+          <div class="route-summary">
+            <div class="route-stat">
+              <span class="route-stat-value" id="route-distance">--</span>
+              <span class="route-stat-label">Distance</span>
+            </div>
+            <div class="route-stat">
+              <span class="route-stat-value" id="route-time">--</span>
+              <span class="route-stat-label">Walk Time</span>
+            </div>
+            <div class="route-stat">
+              <span class="route-stat-value" id="route-floors">--</span>
+              <span class="route-stat-label">Floors</span>
+            </div>
+          </div>
+          <div class="route-directions">
+            <h4>Turn-by-Turn Directions</h4>
+            <ol id="directions-list"></ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- Space Management Panel -->
+      <div class="panel-content" id="panel-spaces">
+        <h2>Space Management</h2>
+        <p class="panel-description">Allocate, monitor, and optimize data center floor space</p>
+        <div class="space-controls">
+          <div class="filter-group">
+            <label>View Mode</label>
+            <div class="toggle-group">
+              <button class="toggle-btn active" data-mode="utilization">Utilization</button>
+              <button class="toggle-btn" data-mode="allocation">Allocation</button>
+              <button class="toggle-btn" data-mode="available">Available</button>
+            </div>
+          </div>
+        </div>
+        <div class="space-chart">
+          <h4>Zone Utilization</h4>
+          <div class="bar-chart">
+            <div class="bar-row">
+              <span class="bar-label">Zone A</span>
+              <div class="bar-track"><div class="bar-fill" style="width:85%;background:#06d6a0">85%</div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Zone B</span>
+              <div class="bar-track"><div class="bar-fill" style="width:72%;background:#00b4d8">72%</div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Zone C</span>
+              <div class="bar-track"><div class="bar-fill" style="width:94%;background:#ef476f">94%</div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Zone D</span>
+              <div class="bar-track"><div class="bar-fill" style="width:58%;background:#ffd166">58%</div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Zone E</span>
+              <div class="bar-track"><div class="bar-fill" style="width:41%;background:#ffd166">41%</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="section-header"><h3>Space Allocation</h3></div>
+        <div class="allocation-list">
+          <div class="allocation-item">
+            <div class="alloc-color" style="background:#00b4d8"></div>
+            <div class="alloc-info">
+              <strong>Cloud Services</strong>
+              <span>82 racks | 3,280 sq ft</span>
+            </div>
+            <span class="alloc-pct">24%</span>
+          </div>
+          <div class="allocation-item">
+            <div class="alloc-color" style="background:#06d6a0"></div>
+            <div class="alloc-info">
+              <strong>Enterprise Hosting</strong>
+              <span>96 racks | 3,840 sq ft</span>
+            </div>
+            <span class="alloc-pct">28%</span>
+          </div>
+          <div class="allocation-item">
+            <div class="alloc-color" style="background:#ffd166"></div>
+            <div class="alloc-info">
+              <strong>Network Infrastructure</strong>
+              <span>64 racks | 2,560 sq ft</span>
+            </div>
+            <span class="alloc-pct">19%</span>
+          </div>
+          <div class="allocation-item">
+            <div class="alloc-color" style="background:#ef476f"></div>
+            <div class="alloc-info">
+              <strong>Storage & Backup</strong>
+              <span>58 racks | 2,320 sq ft</span>
+            </div>
+            <span class="alloc-pct">17%</span>
+          </div>
+          <div class="allocation-item">
+            <div class="alloc-color" style="background:#9b5de5"></div>
+            <div class="alloc-info">
+              <strong>Available Space</strong>
+              <span>42 positions | 1,680 sq ft</span>
+            </div>
+            <span class="alloc-pct">12%</span>
+          </div>
+        </div>
+        <button class="primary-btn" id="btn-plan-space">Open Space Planner</button>
+      </div>
+
+      <!-- Asset Tracking Panel -->
+      <div class="panel-content" id="panel-assets">
+        <h2>Asset Tracking</h2>
+        <p class="panel-description">Locate and monitor every asset across all floors</p>
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="asset-search" placeholder="Search assets by name, ID, or type..." />
+        </div>
+        <div class="asset-filters">
+          <button class="filter-chip active" data-type="all">All (1,247)</button>
+          <button class="filter-chip" data-type="server">Servers (684)</button>
+          <button class="filter-chip" data-type="network">Network (298)</button>
+          <button class="filter-chip" data-type="power">Power (142)</button>
+          <button class="filter-chip" data-type="cooling">Cooling (123)</button>
+        </div>
+        <div class="asset-list">
+          <div class="asset-item" data-id="srv-001">
+            <div class="asset-status online"></div>
+            <div class="asset-info">
+              <strong>Dell PowerEdge R750xs</strong>
+              <span>SRV-2024-0847 | Zone A1, Rack 3, U12-14</span>
+            </div>
+            <button class="locate-btn" title="Locate on map">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="asset-item" data-id="sw-001">
+            <div class="asset-status online"></div>
+            <div class="asset-info">
+              <strong>Cisco Nexus 9300</strong>
+              <span>NET-2024-0192 | Zone B2, Rack 7, U1-2</span>
+            </div>
+            <button class="locate-btn" title="Locate on map">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="asset-item" data-id="ups-001">
+            <div class="asset-status warning"></div>
+            <div class="asset-info">
+              <strong>Eaton 9PX UPS 6000VA</strong>
+              <span>PWR-2024-0056 | Zone C3, Power Bay 2</span>
+            </div>
+            <button class="locate-btn" title="Locate on map">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="asset-item" data-id="crac-001">
+            <div class="asset-status critical"></div>
+            <div class="asset-info">
+              <strong>Schneider CRAC InRow RD</strong>
+              <span>CLG-2024-0034 | Zone B3, Cooling Aisle 4</span>
+            </div>
+            <button class="locate-btn" title="Locate on map">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="asset-item" data-id="pdu-001">
+            <div class="asset-status online"></div>
+            <div class="asset-info">
+              <strong>APC Rack PDU 9000</strong>
+              <span>PWR-2024-0089 | Zone A2, Rack 11</span>
+            </div>
+            <button class="locate-btn" title="Locate on map">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="asset-summary">
+          <div class="summary-row">
+            <span class="dot online"></span> Online: 1,198
+            <span class="dot warning"></span> Warning: 34
+            <span class="dot critical"></span> Critical: 15
+          </div>
+        </div>
+      </div>
+
+      <!-- Safety Panel -->
+      <div class="panel-content" id="panel-safety">
+        <h2>Safety & Emergency</h2>
+        <p class="panel-description">Emergency response planning and evacuation route management</p>
+        <div class="emergency-status">
+          <div class="status-badge normal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Status: Normal Operations
+          </div>
+        </div>
+        <div class="safety-actions">
+          <button class="safety-btn" id="btn-evac-routes">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef476f" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Show Evacuation Routes
+          </button>
+          <button class="safety-btn" id="btn-fire-systems">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffd166" stroke-width="2"><path d="M12 2c0 4-4 6-4 10a4 4 0 0 0 8 0c0-4-4-6-4-10z"/></svg>
+            Fire Suppression Systems
+          </button>
+          <button class="safety-btn" id="btn-cameras">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00b4d8" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Security Cameras
+          </button>
+          <button class="safety-btn" id="btn-access-points">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#06d6a0" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Access Control Points
+          </button>
+        </div>
+        <div class="section-header"><h3>Emergency Contacts</h3></div>
+        <div class="contact-list">
+          <div class="contact-item">
+            <strong>Facility Manager</strong>
+            <span>Alex Chen - Ext. 4501</span>
+          </div>
+          <div class="contact-item">
+            <strong>Security Operations</strong>
+            <span>24/7 NOC - Ext. 4000</span>
+          </div>
+          <div class="contact-item">
+            <strong>Fire Department</strong>
+            <span>Station 12 - 3 min response</span>
+          </div>
+        </div>
+        <div class="section-header"><h3>Ingress/Egress Points</h3></div>
+        <div class="egress-list">
+          <div class="egress-item">
+            <span class="egress-icon entry">IN</span>
+            <div class="egress-info">
+              <strong>Main Entrance (North)</strong>
+              <span>Biometric + Badge | Active</span>
+            </div>
+          </div>
+          <div class="egress-item">
+            <span class="egress-icon exit">OUT</span>
+            <div class="egress-info">
+              <strong>Emergency Exit A (East)</strong>
+              <span>Push bar | Alarmed | Active</span>
+            </div>
+          </div>
+          <div class="egress-item">
+            <span class="egress-icon exit">OUT</span>
+            <div class="egress-info">
+              <strong>Emergency Exit B (West)</strong>
+              <span>Push bar | Alarmed | Active</span>
+            </div>
+          </div>
+          <div class="egress-item">
+            <span class="egress-icon entry">IN</span>
+            <div class="egress-info">
+              <strong>Loading Dock (South)</strong>
+              <span>Badge + Escort | Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Environment Panel -->
+      <div class="panel-content" id="panel-environment">
+        <h2>Environmental Monitoring</h2>
+        <p class="panel-description">Real-time temperature, humidity, and airflow visualization</p>
+        <div class="env-controls">
+          <div class="toggle-group">
+            <button class="toggle-btn active" data-layer="temperature">Temperature</button>
+            <button class="toggle-btn" data-layer="humidity">Humidity</button>
+            <button class="toggle-btn" data-layer="airflow">Airflow</button>
+            <button class="toggle-btn" data-layer="power">Power</button>
+          </div>
+        </div>
+        <div class="env-summary">
+          <div class="env-card">
+            <div class="env-value">21.8°C</div>
+            <div class="env-label">Avg Temperature</div>
+            <div class="env-range">Target: 20-25°C</div>
+            <div class="env-gauge">
+              <div class="gauge-fill" style="width:58%;background:linear-gradient(90deg,#06d6a0,#ffd166)"></div>
+            </div>
+          </div>
+          <div class="env-card">
+            <div class="env-value">45%</div>
+            <div class="env-label">Avg Humidity</div>
+            <div class="env-range">Target: 40-60%</div>
+            <div class="env-gauge">
+              <div class="gauge-fill" style="width:45%;background:linear-gradient(90deg,#00b4d8,#06d6a0)"></div>
+            </div>
+          </div>
+          <div class="env-card">
+            <div class="env-value">2.4 m/s</div>
+            <div class="env-label">Avg Airflow</div>
+            <div class="env-range">Target: 1.5-3.0 m/s</div>
+            <div class="env-gauge">
+              <div class="gauge-fill" style="width:65%;background:linear-gradient(90deg,#00b4d8,#9b5de5)"></div>
+            </div>
+          </div>
+          <div class="env-card">
+            <div class="env-value">847 kW</div>
+            <div class="env-label">Total Power Draw</div>
+            <div class="env-range">Capacity: 1,200 kW</div>
+            <div class="env-gauge">
+              <div class="gauge-fill" style="width:71%;background:linear-gradient(90deg,#06d6a0,#ffd166,#ef476f)"></div>
+            </div>
+          </div>
+        </div>
+        <div class="section-header"><h3>Hot Spots Detected</h3></div>
+        <div class="hotspot-list">
+          <div class="hotspot-item critical">
+            <div class="hotspot-temp">32.4°C</div>
+            <div class="hotspot-info">
+              <strong>Zone B3 - Rack 14</strong>
+              <span>CRAC unit malfunction suspected</span>
+            </div>
+          </div>
+          <div class="hotspot-item warning">
+            <div class="hotspot-temp">27.8°C</div>
+            <div class="hotspot-info">
+              <strong>Zone A2 - Row 6</strong>
+              <span>High density compute load</span>
+            </div>
+          </div>
+          <div class="hotspot-item warning">
+            <div class="hotspot-temp">26.1°C</div>
+            <div class="hotspot-info">
+              <strong>Zone C1 - Row 2</strong>
+              <span>Blanking panel missing</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feature Showcase Modal -->
+  <div id="feature-modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close">&times;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
