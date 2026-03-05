@@ -232,6 +232,32 @@ body {
   border-color: var(--accent-blue);
 }
 
+.sign-in-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--accent-blue);
+  border: none;
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sign-in-btn:hover {
+  background: #0096b7;
+}
+
+.sign-in-btn:disabled {
+  cursor: default;
+  background: var(--bg-card);
+  color: var(--accent-green);
+}
+
 /* Main Content */
 #app-content {
   display: flex;
